@@ -1,135 +1,94 @@
+# gatb_test_professional.py
 import streamlit as st
 import random
+import math
+import pandas as pd
 
-# --- CONFIGURACIÓN DE LA PÁGINA ---
+# ---------------------------
+# Configuración de la página
+# ---------------------------
 st.set_page_config(
-    page_title="Test GATB Profesional",
+    page_title="Simulador GATB — Profesional",
     page_icon="🧠",
-    layout="wide"
+    layout="wide",
 )
 
-# --- ESTILOS CSS PARA DISEÑO PROFESIONAL ---
-st.markdown("""
+# ---------------------------
+# Estilos (profesional)
+# ---------------------------
+st.markdown(
+    """
     <style>
-        .main {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .stButton>button {
-            background-color: #2E86C1;
-            color: white;
-            font-weight: 600;
-            border-radius: 8px;
-            border: none;
-            padding: 10px 24px;
-        }
-        .stButton>button:hover {
-            background-color: #1B4F72;
-            color: white;
-        }
-        .question-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-        }
+    /* Fondo y caja principal */
+    .app-container {
+        background: linear-gradient(180deg, #f4f8fb 0%, #e9f2fb 100%);
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 6px 24px rgba(14,30,37,0.06);
+    }
+    /* Cards de pregunta */
+    .question-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(14,30,37,0.04);
+        border-left: 6px solid #2E86C1;
+    }
+    /* Botones */
+    .stButton>button {
+        background-color: #2E86C1;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 8px 18px;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #1B4F72;
+    }
+    /* Títulos */
+    h1, h2, h3, h4 { font-family: "Segoe UI", Roboto, Arial, sans-serif; }
+    /* Small caption */
+    .small { font-size: 0.9em; color: #6b7280; }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
-# --- ENCABEZADO ---
-st.title("🧠 Test de Aptitudes GATB")
-st.subheader("Evaluación general de aptitudes — versión profesional (50 preguntas)")
+# ---------------------------
+# Encabezado
+# ---------------------------
+st.markdown('<div class="app-container">', unsafe_allow_html=True)
+st.title("🧠 Simulador Interactivo GATB — 50 Preguntas")
+st.markdown("Prueba de práctica profesional — Aritmética, Verbal y Problemas. Responde, revisa explicaciones y descarga resultados.")
 st.markdown("---")
 
-# --- GENERACIÓN DE PREGUNTAS ---
-preguntas_base = [
-    ("Identifique la figura diferente en la serie.", ["A", "B", "C", "D"], "C"),
-    ("Complete la secuencia numérica: 2, 4, 8, 16, ?", ["18", "24", "32", "36"], "32"),
-    ("¿Qué palabra no pertenece al grupo?", ["Perro", "Gato", "Loro", "Mesa"], "Mesa"),
-    ("Si todos los A son B y algunos B son C, entonces:", 
-     ["Todos los A son C", "Algunos C son A", "Ningún C es A", "No se puede determinar"], "No se puede determinar"),
-    ("¿Cuál es el sinónimo de 'iniciar'?", ["Terminar", "Comenzar", "Ignorar", "Cancelar"], "Comenzar"),
-    ("Si 5 trabajadores hacen una tarea en 10 días, ¿cuántos la harán en 5 días?", 
-     ["10", "5", "15", "20"], "10"),
-    ("¿Qué número completa la serie? 3, 6, 9, 12, ?", ["13", "14", "15", "16"], "15"),
-    ("Si un tren recorre 60 km en 1 hora, ¿cuánto recorrerá en 3 horas?", ["90", "120", "150", "180"], "180"),
-    ("¿Cuál es el antónimo de 'rápido'?", ["Veloz", "Ágil", "Lento", "Fuerte"], "Lento"),
-    ("¿Qué figura completa la serie lógica?", ["A", "B", "C", "D"], "B"),
-]
+# ---------------------------
+# Preguntas (50) — definidas y revisadas
+# ---------------------------
+# Nota: mantuvimos variedad: Aritmética / Verbal / Problemas
+preguntas = [
+    # Aritmética (Parte 2)
+    {"id": 1,  "categoria": "Aritmética", "texto": "¿Cuánto es 58 + 34?", "opciones": ["82","91","92","102"], "respuesta": "92", "explicacion": "58 + 34 = 92."},
+    {"id": 2,  "categoria": "Aritmética", "texto": "¿Cuánto es 91 − 27?", "opciones": ["64","74","76","66"], "respuesta": "64", "explicacion": "91 − 27 = 64."},
+    {"id": 3,  "categoria": "Aritmética", "texto": "¿Cuánto es 15 × 6?", "opciones": ["75","80","90","95"], "respuesta": "90", "explicacion": "15 × 6 = 90."},
+    {"id": 4,  "categoria": "Aritmética", "texto": "¿Cuánto es 81 ÷ 9?", "opciones": ["7","8","9","6"], "respuesta": "9", "explicacion": "81 ÷ 9 = 9."},
+    {"id": 5,  "categoria": "Aritmética", "texto": "¿Cuánto es 129 + 87?", "opciones": ["206","216","226","196"], "respuesta": "216", "explicacion": "129 + 87 = 216."},
+    {"id": 6,  "categoria": "Aritmética", "texto": "¿Cuánto es 153 − 78?", "opciones": ["75","85","87","65"], "respuesta": "75", "explicacion": "153 − 78 = 75."},
+    {"id": 7,  "categoria": "Aritmética", "texto": "¿Cuánto es 42 × 7?", "opciones": ["284","294","296","304"], "respuesta": "294", "explicacion": "42 × 7 = 294."},
+    {"id": 8,  "categoria": "Aritmética", "texto": "¿Cuánto es 132 ÷ 11?", "opciones": ["10","11","12","13"], "respuesta": "12", "explicacion": "132 ÷ 11 = 12."},
+    {"id": 9,  "categoria": "Aritmética", "texto": "¿Cuánto es 788 + 325?", "opciones": ["1013","1103","1113","1123"], "respuesta": "1113", "explicacion": "788 + 325 = 1113."},
+    {"id": 10, "categoria": "Aritmética", "texto": "¿Cuánto es 804 − 139?", "opciones": ["765","675","665","705"], "respuesta": "665", "explicacion": "804 − 139 = 665."},
 
-# --- DUPLICAR ALEATORIAMENTE PARA LLEGAR A 50 ---
-preguntas = []
-for i in range(50):
-    base = random.choice(preguntas_base)
-    preguntas.append((f"{i+1}. {base[0]}", base[1], base[2]))
-
-# --- INICIALIZAR ESTADO ---
-if "respuestas" not in st.session_state:
-    st.session_state.respuestas = {}
-if "pagina" not in st.session_state:
-    st.session_state.pagina = 0
-
-# --- LÓGICA DE PÁGINAS ---
-total_preguntas = len(preguntas)
-preguntas_por_pagina = 5
-total_paginas = total_preguntas // preguntas_por_pagina
-
-pagina_actual = st.session_state.pagina
-inicio = pagina_actual * preguntas_por_pagina
-fin = inicio + preguntas_por_pagina
-
-# --- BARRA DE PROGRESO ---
-progreso = len(st.session_state.respuestas) / total_preguntas
-st.progress(progreso)
-st.write(f"Progreso: {int(progreso*100)}% completado")
-
-# --- MOSTRAR PREGUNTAS ---
-for i in range(inicio, fin):
-    pregunta, opciones, correcta = preguntas[i]
-    with st.container():
-        st.markdown(f"<div class='question-card'><h5>{pregunta}</h5>", unsafe_allow_html=True)
-        seleccion = st.radio("Selecciona una respuesta:", opciones, key=f"pregunta_{i}")
-        st.markdown("</div>", unsafe_allow_html=True)
-        st.session_state.respuestas[i] = seleccion
-
-# --- NAVEGACIÓN ENTRE PÁGINAS ---
-col1, col2, col3 = st.columns([1, 2, 1])
-
-with col1:
-    if pagina_actual > 0:
-        if st.button("⬅️ Anterior"):
-            st.session_state.pagina -= 1
-            st.rerun()
-
-with col3:
-    if pagina_actual < total_paginas - 1:
-        if st.button("Siguiente ➡️"):
-            st.session_state.pagina += 1
-            st.rerun()
-
-# --- FINALIZAR Y MOSTRAR RESULTADOS ---
-if pagina_actual == total_paginas - 1:
-    st.markdown("---")
-    if st.button("✅ Finalizar Test"):
-        correctas = 0
-        for i, (pregunta, opciones, correcta) in enumerate(preguntas):
-            if st.session_state.respuestas.get(i) == correcta:
-                correctas += 1
-        puntaje = int((correctas / total_preguntas) * 100)
-
-        st.success(f"Has finalizado el test. Tu puntaje es: **{puntaje}%**")
-        if puntaje >= 80:
-            st.balloons()
-            st.info("¡Excelente desempeño! Alta capacidad de razonamiento general.")
-        elif puntaje >= 60:
-            st.warning("Buen resultado, con margen de mejora en análisis lógico.")
-        else:
-            st.error("Nivel bajo. Se recomienda reforzar habilidades cognitivas básicas.")
-
-        st.markdown("---")
-        st.subheader("🔎 Resumen de Respuestas")
-        for i, (pregunta, opciones, correcta) in enumerate(preguntas):
-            resp = st.session_state.respuestas.get(i, "No respondida")
-            resultado = "✅" if resp == correcta else "❌"
-            st.write(f"{resultado} **{pregunta}** — Tu respuesta: {resp} | Correcta: {correcta}")
+    # Verbal (Parte 4)
+    {"id": 11, "categoria": "Verbal", "texto": "Selecciona los sinónimos: Bonito, Feo, Lindo, Grande.", "opciones": ["Bonito y Feo","Bonito y Lindo","Feo y Grande","Grande y Lindo"], "respuesta": "Bonito y Lindo", "explicacion": "Bonito y Lindo son sinónimos."},
+    {"id": 12, "categoria": "Verbal", "texto": "Selecciona los sinónimos: Cansado, Agotado, Fuerte, Rápido.", "opciones": ["Cansado y Agotado","Fuerte y Rápido","Agotado y Rápido","Cansado y Fuerte"], "respuesta": "Cansado y Agotado", "explicacion": "Cansado y Agotado significan falta de energía."},
+    {"id": 13, "categoria": "Verbal", "texto": "Selecciona el par opuesto: Abrir, Cerrar, Entrar, Salir.", "opciones": ["Abrir y Cerrar","Entrar y Cerrar","Salir y Abrir","Entrar y Salir"], "respuesta": "Abrir y Cerrar", "explicacion": "Abrir y Cerrar son antónimos directos."},
+    {"id": 14, "categoria": "Verbal", "texto": "Selecciona los sinónimos: Alegre, Contento, Enojado, Triste.", "opciones": ["Alegre y Triste","Contento y Alegre","Enojado y Alegre","Triste y Alegre"], "respuesta": "Contento y Alegre", "explicacion": "Contento y Alegre expresan felicidad."},
+    {"id": 15, "categoria": "Verbal", "texto": "Selecciona el par opuesto: Frío, Caliente, Tibio, Helado.", "opciones": ["Frío y Caliente","Tibio y Helado","Frío y Helado","Caliente y Tibio"], "respuesta": "Frío y Caliente", "explicacion": "Frío y Caliente son antónimos en temperatura."},
+    {"id": 16, "categoria": "Verbal", "texto": "Selecciona los sinónimos: Empezar, Terminar, Iniciar, Pausar.", "opciones": ["Empezar y Terminar","Iniciar y Pausar","Empezar e Iniciar","Terminar y Pausar"], "respuesta": "Empezar e Iniciar", "explicacion": "Empezar e Iniciar son sinónimos."},
+    {"id": 17, "categoria": "Verbal", "texto": "Selecciona el par opuesto: Reír, Llorar, Sonreír, Gritar.", "opciones": ["Reír y Llorar","Sonreír y Gritar","Reír y Sonreír","Llorar y Gritar"], "respuesta": "Reír y Llorar", "explicacion": "Reír y Llorar son antónimos en emoción."},
+    {"id": 18, "categoria": "Verbal", "texto": "Selecciona los sinónimos: Antiguo, Moderno, Nuevo, Viejo.", "opciones": ["Antiguo y Moderno","Antiguo y Viejo","Nuevo y Viejo","Moderno y Viejo"], "respuesta": "Antiguo y Viejo", "explicacion": "Antiguo y Viejo comparten significado."},
+    {"id": 19, "categoria": "Verbal", "texto": "Selecciona el par opuesto: Vacío, Lleno, Roto, Completo.", "opciones": ["Vacío y Lleno","Roto y Completo","Vacío y Roto","Lleno y Completo"], "respuesta": "Vacío y Lleno", "explicacion": "Vacío y Lleno son antónimos."},
+    {"id": 20, "categoria": "Verbal", "texto": "Selecciona los sinónimos: Triste, Deprimido, Alegre, Contento.", "opciones": ["Triste y Alegre","Deprimido y Triste","Alegre y Deprimido","Contento y Triste"], "respuesta": "Deprimido y Triste", "explicacion": "Depr
