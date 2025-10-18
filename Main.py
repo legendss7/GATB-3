@@ -1,6 +1,7 @@
-# test_gatb_pro.py
+# test_gatb_pro_50_reales.py
 import streamlit as st
 import pandas as pd
+# Ya no necesitamos 'random' porque las respuestas están predefinidas
 
 # ---------------------------
 # Configuración de la página
@@ -90,10 +91,37 @@ st.markdown("""
 def get_questions():
     """
     Retorna la lista completa de 50 preguntas.
-    ¡Aquí es donde debes editar y agregar tus propias preguntas!
     """
+    
+    # --- BANCOS DE PREGUNTAS DE RELLENO ---
+    # (Puedes agregar más aquí para mayor variedad)
+    
+    banco_aritmetica = [
+        {"txt": "¿Cuánto es 7 x 6?", "ops": ["40", "42", "48", "56"], "r": "42", "exp": "7 multiplicado por 6 es 42."},
+        {"txt": "Calcula el 25% de 200.", "ops": ["25", "50", "75", "100"], "r": "50", "exp": "25% es 1/4. Un cuarto de 200 es 50."},
+        {"txt": "Suma: 150 + 350.", "ops": ["400", "450", "500", "550"], "r": "500", "exp": "150 + 350 = 500."},
+        {"txt": "Si un libro cuesta $10.000 y tiene 10% de descuento, ¿cuál es el precio final?", "ops": ["$8.000", "$9.000", "$9.500", "$1.000"], "r": "$9.000", "exp": "El 10% de 10.000 es 1.000. 10.000 - 1.000 = 9.000."},
+        {"txt": "¿Cuál es la mitad de 128?", "ops": ["60", "64", "68", "70"], "r": "64", "exp": "128 dividido por 2 es 64."}
+    ]
+
+    banco_verbal = [
+        {"txt": "El antónimo de 'ABRIR' es:", "ops": ["CERRAR", "COMENZAR", "ENTRAR", "MOVER"], "r": "CERRAR", "exp": "Antónimo es lo opuesto. Lo opuesto de abrir es cerrar."},
+        {"txt": "El sinónimo de 'CONTENTO' es:", "ops": ["TRISTE", "ENOJADO", "ALEGRE", "CANSADO"], "r": "ALEGRE", "exp": "Sinónimo es un significado similar. Contento es similar a alegre."},
+        {"txt": "ZAPATO es a PIE como GUANTE es a...", "ops": ["CABEZA", "MANO", "BRAZO", "DEDO"], "r": "MANO", "exp": "Es una analogía de uso. El zapato se usa en el pie, el guante se usa en la mano."},
+        {"txt": "¿Qué palabra no pertenece al grupo: Rojo, Azul, Amarillo, Silla?", "ops": ["ROJO", "AZUL", "AMARILLO", "SILLA"], "r": "SILLA", "exp": "Rojo, Azul y Amarillo son colores. Silla es un mueble."},
+        {"txt": "Identifica el error: 'Los niño juegan en el parque.'", "ops": ["niño", "juegan", "en el", "parque"], "r": "niño", "exp": "Debería ser 'Los niños' (plural) para concordar con 'juegan' (plural)."}
+    ]
+
+    banco_problemas = [
+        {"txt": "Un auto viaja a 100 km/h. ¿Qué distancia recorre en 3 horas?", "ops": ["100 km", "200 km", "300 km", "30 km"], "r": "300 km", "exp": "Distancia = Velocidad x Tiempo. 100 km/h * 3 h = 300 km."},
+        {"txt": "Juan tiene 10 manzanas y le da 3 a Ana. ¿Cuántas le quedan?", "ops": ["3", "5", "7", "13"], "r": "7", "exp": "Es una resta simple: 10 - 3 = 7."},
+        {"txt": "Si 3 lápices cuestan $600, ¿cuánto cuestan 5 lápices?", "ops": ["$600", "$800", "$1000", "$1200"], "r": "$1000", "exp": "Cada lápiz cuesta $200 ($600/3). 5 lápices cuestan 5 * $200 = $1000."},
+        {"txt": "Hoy es miércoles. ¿Qué día fue anteayer?", "ops": ["Lunes", "Martes", "Jueves", "Viernes"], "r": "Lunes", "exp": "Ayer fue martes. Anteayer fue lunes."},
+        {"txt": "Un evento empieza a las 10:00 AM y dura 90 minutos. ¿A qué hora termina?", "ops": ["11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM"], "r": "11:30 AM", "exp": "90 minutos son 1 hora y 30 minutos. 10:00 AM + 1h 30m = 11:30 AM."}
+    ]
+    
+    # --- Preguntas Iniciales (1-5) ---
     preguntas = [
-        # --- Ejemplos Reales ---
         {
             "id": 1,
             "categoria": "Aritmética",
@@ -130,22 +158,37 @@ def get_questions():
             "id": 5,
             "categoria": "Verbal",
             "texto": "El antónimo de 'INOCUO' es:",
-            "opciones": ["INOFENSIVO", "PERjudicial", "SALUDABLE", "APROPIADO"],
-            "respuesta": "PERjudicial",
+            "opciones": ["INOFENSIVO", "PERJUDICIAL", "SALUDABLE", "APROPIADO"],
+            "respuesta": "PERJUDICIAL",
             "explicacion": "Inocuo significa que no hace daño (inofensivo). Su antónimo (lo opuesto) es algo que sí hace daño (perjudicial)."
         },
     ]
 
     # --- Relleno de Plantilla (Preguntas 6-50) ---
+    
     for i in range(6, 51):
         cat = "Aritmética" if i % 3 == 1 else ("Verbal" if i % 3 == 2 else "Problema")
+        
+        # Seleccionamos un banco y una pregunta de ese banco
+        if cat == "Aritmética":
+            banco = banco_aritmetica
+        elif cat == "Verbal":
+            banco = banco_verbal
+        else:
+            banco = banco_problemas
+            
+        # Usamos el operador módulo (%) para rotar dentro del banco de preguntas
+        # (i // 3) nos da un índice que crece más lento
+        # % len(banco) asegura que el índice nunca se salga del tamaño del banco
+        q_data = banco[(i // 3) % len(banco)] 
+        
         preguntas.append({
             "id": i,
             "categoria": cat,
-            "texto": f"Texto de ejemplo para la pregunta de {cat} número {i}. ¿Cuál es la opción correcta?",
-            "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
-            "respuesta": "Opción A",
-            "explicacion": f"Esta es la explicación de por qué la 'Opción A' es la correcta para la pregunta {i}."
+            "texto": q_data["txt"],
+            "opciones": q_data["ops"],
+            "respuesta": q_data["r"],
+            "explicacion": q_data["exp"]
         })
     
     return preguntas
@@ -195,6 +238,8 @@ def show_welcome_screen():
         st.session_state.test_started = True
         st.session_state.show_results = False
         st.session_state.page_idx = 0
+        # Volvemos a llamar a get_questions()
+        st.session_state.questions = get_questions() 
         st.session_state.answers = {str(q["id"]): "" for q in st.session_state.questions}
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
@@ -287,7 +332,7 @@ def show_results_screen():
     total_correctas = 0
     
     for q in preguntas:
-        user_answer = respuestas[str(q["id"])]
+        user_answer = respuestas.get(str(q["id"])) # Usamos .get() por seguridad
         correct_answer = q["respuesta"]
         categoria = q["categoria"]
         
